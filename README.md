@@ -1,36 +1,89 @@
-# Practical lesson pz-UML
-## Побудова повердінкових UML-діаграм для проєктування інформаційних систем
+# Практична робота: Побудова поведінкових UML-діаграм
+**Тема:** Проєктування системи забезпечення захищеного зв'язку (Secure Communication System)
 
-> У цьому занятті студенти отримують практичні навички моделювання інформаційних систем за допомогою UML.
-> Мета — навчитися аналізувати вимоги до системи та візуалізувати її структуру й поведінку за допомогою поведінкових UML-діаграм.
+## Опис проєкту
+Система призначена для автоматизації процесів встановлення, моніторингу та відновлення каналів зв'язку. Вона забезпечує стабільне з'єднання між віддаленими абонентами через різні типи каналів із використанням шифрування.
 
-## What need to do:
+---
 
-* Обрати предметну область або просту інформаційну систему для моделювання
-* Побудувати діаграму варіантів використання (Use Case Diagram)
-* Побудувати діаграму послідовності (Sequence Diagram)
-* Побудувати діаграму діяльності (Activity Diagram)
-* Використати будь-який інструмент UML-моделювання (draw.io, Miro, lucidchart, Mermaidjs тощо)
+## 1. Діаграма варіантів використання (Use Case Diagram)
+```mermaid
+flowchart LR
+    User(["Абонент"])
+    Signalman(["Зв'язківець"])
+    NetAdmin(["Адмін мережі"])
 
-## Acceptance criteria
+    subgraph "Система зв'язку"
+        UC1("Встановлення з'єднання")
+        UC2("Шифрування каналу")
+        UC3("Моніторинг якості сигналу")
+        UC4("Конфігурація обладнання")
+        UC5("Усунення несправностей")
+    end
 
-- Побудовано всі три UML-діаграми:
-    - Use Case Diagram
-    - Sequence Diagram
-    - Activity Diagram
-- Діаграми логічно пов’язані між собою та відповідають обраній предметній області
-- Коректно використані основні UML-нотації та позначення
-- Здобувач розуміє призначення кожної діаграми та може пояснити її зміст
-- Усі діаграми збережені у вигляді зображень або файлів проєкту або варіант markdown + mermaidjs
-- Опис роботи та діаграми оформлені в markdown
-- Надати посилання на виконанні діаграми в projectPlan
+    User --> UC1
+    UC1 -.-> UC2
+    Signalman --> UC1
+    Signalman --> UC3
+    Signalman --> UC4
+    NetAdmin --> UC4
+    NetAdmin --> UC5
+```
 
-## Usfull links
+---
 
-[Як будувати UML-діаграми. Розбираємо три найпопулярніші варіанти](https://dou.ua/forums/topic/40575/)
+## 2. Діаграма послідовності (Sequence Diagram)
 
-[The ultimate guide to UML diagrams](https://miro.com/diagramming/what-is-a-uml-diagram/)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant NodeA as Вузол А (Термінал)
+    participant Server as Центр комутації
+    participant Crypto as Модуль шифрування
+    participant NodeB as Вузол Б (Отримувач)
 
-[Master the basics of Lucidchart in 3 minutes](https://www.lucidchart.com/pages/tutorial/uml-use-case-diagram#section_4)
+    NodeA->>Server: Запит на встановлення каналу
+    Server->>Crypto: Генерація сесійних ключів
+    Crypto-->>Server: Ключі готові
+    Server->>NodeB: Запит на автентифікацію
+    NodeB-->>Server: Підтвердження (Token)
+    Server->>NodeA: Канал встановлено (Зашифровано)
+    
+    Note over NodeA, NodeB: Передача оперативної інформації
+    
+    NodeA->>NodeB: Пакет даних (Encrypted)
+    NodeB-->>NodeA: Підтвердження отримання (ACK)
+```
 
-[Mermaidjs](https://mermaid.js.org/)
+---
+
+## 3. Діаграма діяльності (Activity Diagram)
+```mermaid
+stateDiagram-v2
+    [*] --> LinkMonitoring
+    LinkMonitoring --> SignalEvaluation
+    
+    state "Сигнал в нормі?" as check_signal <<choice>>
+    SignalEvaluation --> check_signal
+    
+    check_signal --> LinkMonitoring : Так
+    check_signal --> InterferenceDetected : Ні
+    
+    state InterferenceDetected {
+        [*] --> FrequencyHopping
+        FrequencyHopping --> Rerouting
+    }
+    
+    Rerouting --> LinkRestored
+    
+    state "Зв'язок відновлено?" as check_recovery <<choice>>
+    LinkRestored --> check_recovery
+    
+    check_recovery --> LinkMonitoring : Так
+    check_recovery --> EmergencyProtocol : Ні
+    
+    EmergencyProtocol --> [*]
+```
+
+---
+**Виконав:** [Ваше Ім'я]
